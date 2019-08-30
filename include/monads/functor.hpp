@@ -5,8 +5,8 @@
 #include "mapping.hpp"
 
 template <class Derived>
-struct Functor : private CRTPDerivedCaster<Derived> {
-
+class Functor : private CRTPDerivedCaster<Derived> {
+public:
     template <class Func>
     auto FMap(Func&& func) {
         return FMapImpl(*this, std::forward<Func>(func));
