@@ -50,10 +50,15 @@ TEST(Functor, Basic) {
     ASSERT_EQ(vec.FMap(map), expected);
 }
 
-struct Nothing {};
+struct AbstractNothing {};
 
 template <class T>
 class MaybeApplicative;
+
+template <class T>
+MaybeApplicative<T> Nothing() {
+    return {AbstractNothing()};
+}
 
 template <class T>
 MaybeApplicative<std::remove_cv_t<std::remove_reference_t<T>>> Just(T&& value);
@@ -76,7 +81,7 @@ public:
     explicit MaybeApplicative(T value) : BaseT(value) {
     }
 
-    MaybeApplicative(Nothing) : BaseT(std::nullopt) {
+    MaybeApplicative(AbstractNothing) : BaseT(std::nullopt) {
     }
 
     bool isJust() const {
@@ -91,7 +96,7 @@ private:
         auto call_impl = [&] { return (*std::forward<Me>(me))(*std::forward<S>(other)); };
         using ReturnType = decltype(call_impl());
         if (!other.isJust() || !me.isJust()) {
-            return MaybeApplicative<ReturnType>{Nothing()};
+            return Nothing<ReturnType>();
         }
         return MaybeApplicative<ReturnType>(call_impl());
     }
@@ -117,7 +122,7 @@ TEST(MaybeApplicative, IsApplicative) {
     ASSERT_TRUE(maybe_value.isJust());
     ASSERT_EQ(*maybe_value, 3);
 
-    MaybeApplicative maybe_novalue = func | Just(1) | MaybeApplicative<int>(Nothing());
+    MaybeApplicative maybe_novalue = func | Just(1) | Nothing<int>();
     ASSERT_FALSE(maybe_novalue.isJust());
 }
 
@@ -127,6 +132,6 @@ TEST(MaybeApplicative, IsFunctor) {
     ASSERT_EQ(*maybe_value, 2);
 
     MaybeApplicative maybe_novalue =
-        MaybeApplicative<int>(Nothing()).FMap([](auto) -> std::string { return "string"; });
+        Nothing<int>().FMap([](auto) -> std::string { return "string"; });
     ASSERT_FALSE(maybe_novalue.isJust());
 }
