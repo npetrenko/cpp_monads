@@ -14,8 +14,10 @@ class Applicative;
  */
 template <class Concrete>
 struct Pure {
-    template <class T>
+    template <class T, class Dummy = void>
     auto operator()(T&&) const {
+        static_assert(!std::is_same_v<Dummy, void>,
+                      "Pure has to be specialized for each Applicative functor");
     }
 };
 
