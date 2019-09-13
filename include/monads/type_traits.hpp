@@ -4,7 +4,7 @@
 #include <type_traits>
 
 template <template <class...> class Template, class Cls>
-struct IsTemplateSpecialization {
+struct IsTemplateInstance {
     template <class... Args>
     static std::true_type Tester(Template<Args...>*);
     static std::false_type Tester(...);
@@ -13,7 +13,7 @@ struct IsTemplateSpecialization {
 };
 
 template <template <class...> class Template, class Cls>
-inline constexpr bool IsTemplateSpecialization_v = IsTemplateSpecialization<Template, Cls>::value;
+inline constexpr bool IsTemplateInstance_v = IsTemplateInstance<Template, Cls>::value;
 
 template <class Func, class From>
 struct CanBeCalled {
@@ -46,3 +46,27 @@ inline constexpr bool EmitsValue_v = EmitsValue<Func, Args...>::value;
 
 template <class Cat>
 struct CatTraits {};
+
+template <class T>
+struct From {};
+
+template <class From, class To>
+struct CopyCRef{};
+
+template <class Fr, class To>
+struct CopyCRef<From<Fr>, To> {
+private:
+  using Pure = std::remove_cv_t<std::remove_reference_t<To>>;
+  using CQualifiedPure = std::conditional_t<std::is_const_v<std::remove_reference_t<Fr>>, const Pure, Pure>;
+  using MaybeWithReference = std::conditional_t<std::is_reference_v<Fr>,
+						std::conditional_t<std::is_rvalue_reference_v<Fr>, CQualifiedPure&&, CQualifiedPure&>,
+						CQualifiedPure>;
+public:
+  using type = MaybeWithReference;
+};
+
+template <class From, class To>
+using CopyCRef_t = typename CopyCRef<From, To>::type;
+
+template <class T>
+using Forward_t = decltype(std::forward<T>(std::declval<T>()));

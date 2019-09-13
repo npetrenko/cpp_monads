@@ -1,15 +1,13 @@
 #pragma once
 
+#include "type_traits.hpp"
+
 template <class Derived>
 class CRTPDerivedCaster {
 public:
-    template <class T>
-    static constexpr Derived* Cast(T* ptr) {
-        return static_cast<Derived*>(ptr);
-    }
-
-    template <class T>
-    static const Derived* Cast(const T* ptr) {
-        return static_cast<const Derived*>(ptr);
-    }
+  template <class T>
+  static constexpr auto&& Cast(T&& base) {
+    using CopiedCRef = CopyCRef_t<From<Forward_t<T>>, Derived>;
+    return static_cast<CopiedCRef>(base);
+  }
 };
