@@ -105,8 +105,7 @@ class MaybeApplicative : public Applicative<MaybeApplicative<T>>, private std::o
 private:
     using BaseT = std::optional<T>;
 
-    template <class S>
-    friend class Applicative;
+    friend class Applicative<MaybeApplicative<T>>;
 
 public:
     using ValueType = T;
