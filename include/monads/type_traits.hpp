@@ -51,18 +51,21 @@ template <class T>
 struct From {};
 
 template <class From, class To>
-struct CopyCRef{};
+struct CopyCRef {};
 
 template <class Fr, class To>
 struct CopyCRef<From<Fr>, To> {
 private:
-  using Pure = std::remove_cv_t<std::remove_reference_t<To>>;
-  using CQualifiedPure = std::conditional_t<std::is_const_v<std::remove_reference_t<Fr>>, const Pure, Pure>;
-  using MaybeWithReference = std::conditional_t<std::is_reference_v<Fr>,
-						std::conditional_t<std::is_rvalue_reference_v<Fr>, CQualifiedPure&&, CQualifiedPure&>,
-						CQualifiedPure>;
+    using Pure = std::remove_cv_t<std::remove_reference_t<To>>;
+    using CQualifiedPure =
+        std::conditional_t<std::is_const_v<std::remove_reference_t<Fr>>, const Pure, Pure>;
+    using MaybeWithReference = std::conditional_t<
+        std::is_reference_v<Fr>,
+        std::conditional_t<std::is_rvalue_reference_v<Fr>, CQualifiedPure&&, CQualifiedPure&>,
+        CQualifiedPure>;
+
 public:
-  using type = MaybeWithReference;
+    using type = MaybeWithReference;
 };
 
 template <class From, class To>
