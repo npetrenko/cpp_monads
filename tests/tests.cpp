@@ -45,7 +45,7 @@ public:
 private:
     template <class ThisT, class Func>
     static auto FMapImpl(ThisT&& me, Func&& func) {
-        using CopiedCRef = CopyCRef_t<From<ThisT>, T>;
+        using CopiedCRef = CopyCRef_t<From<Forward_t<ThisT>>, T>;
         using Output = OutputType_t<Func, CopiedCRef>;
 
         if constexpr (std::is_same_v<Output, void>) {
