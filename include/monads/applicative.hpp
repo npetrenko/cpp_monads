@@ -9,11 +9,14 @@
 template <class>
 class Applicative;
 
-/*
+/**
  * This struct has to be specialized with operator() implemented
  */
 template <class Concrete>
 struct Pure {
+    /**
+     * Is overriden for every specialization, static asserts for it
+     */
     template <class T, class Dummy = void>
     auto operator()(T&&) const {
         static_assert(!std::is_same_v<Dummy, void>,
@@ -21,8 +24,14 @@ struct Pure {
     }
 };
 
+/**
+ * Type traits for applicative functors
+ */
 template <class Derived>
 struct CatTraits<Applicative<Derived>> {
+    /**
+     * Type of value stored in applicative functor
+     */
     using ValueType = typename CatTraits<Derived>::ValueType;
 };
 
@@ -47,6 +56,10 @@ public:
     }
 
 private:
+    /**
+     * Interface that is overriden by concrete implementation through
+     * OpImplOverride
+     */
     template <class Me, class Other>
     static auto OpImpl(Me&& me, Other&& other) {
         using CleanOther = std::remove_cv_t<std::remove_reference_t<Other>>;

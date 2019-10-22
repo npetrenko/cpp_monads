@@ -5,6 +5,10 @@
 #include "mapping.hpp"
 #include "type_traits.hpp"
 
+/**
+ * Functor interface class
+ * Use with care
+ */
 template <class Derived>
 class Functor : private CRTPDerivedCaster<Derived> {
 public:
